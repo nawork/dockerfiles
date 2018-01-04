@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -13,7 +13,15 @@ info () {
 : "${SAMBA_REALM:?SAMBA_REALM needs to be set}"
 
 # If $SAMBA_PASSWORD is not set, generate a password
-SAMBA_PASSWORD=${SAMBA_PASSWORD:-`(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c20; echo) 2>/dev/null`}
+digits='[[:digit:]].*[[:digit:]]'
+upper='[[:upper:]].*[[:upper:]]'
+lower='[[:lower:]].*[[:lower:]]'
+punct='[[:punct:]].*[[:punct:]]'
+while [[ ! ( $test_pass =~ $digits && $test_pass =~ $upper && $test_pass =~ $lower && $test_pass =~ $punct ) ]]
+do
+   test_pass=`(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c20; echo) 2>/dev/null`
+done
+SAMBA_PASSWORD=${SAMBA_PASSWORD:-$test_pass}
 info "Samba password set to: $SAMBA_PASSWORD"
 
 # Populate $SAMBA_OPTIONS
